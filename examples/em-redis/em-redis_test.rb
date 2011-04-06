@@ -45,6 +45,25 @@ class EMRedisTestCase < MiniTest::Unit::TestCase
     end
   end
 
+  def test_reconnect
+    @r = EM::Protocols::Redis.connect
+    ChildProcessManager.reap_all
+    EM.next_tick do
+      @r.get("test") do |res|
+        assert nil, res
+        assert_equal true, @r.error?
+      end
+    end
+    cpm = ChildProcessManager.spawn({
+      :cmd  => 'redis-server',
+      :port => 6379,
+    })
+    EM.add_timer(2) do
+      assert_equal false, @r.error?
+      done
+    end
+  end
+
 end
 
 MiniTest::Unit.new.run ARGV
