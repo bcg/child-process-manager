@@ -38,14 +38,6 @@ class ChildProcess
       Process.waitpid(@pid)
     rescue 
     end
-    loop do
-      begin
-        s = TCPSocket.open(@ip, @port)
-        s.close
-      rescue Errno::ECONNREFUSED
-        return
-      end
-    end
   end
 
 end
