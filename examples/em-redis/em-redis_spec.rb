@@ -12,24 +12,31 @@ describe EM::Protocols::Redis do
   include EM::Spec
 
   before(:each) do
-    ChildProcessManager.spawn({
+    ChildProcessManager.spawn([{
       :cmd  => 'redis-server',
-      :port => 6379,
-      :on_connect => nil,
-      :on_stdout => nil,
-      :on_stderr => nil
-    })
+      :port => 6379
+    },{
+      :cmd  => 'echo "port 12345" | redis-server -',
+      :port => 12345
+    }])
     done
   end
 
   after(:each) do
-    ChildProcessManager.reap_one(6379)
+    ChildProcessManager.reap_all
     done
   end
 
   it 'should connect' do
     @r = EM::Protocols::Redis.connect
     @r.error?.should be_false
+    done
+  end
+
+  it 'should reap_one then reap_all' do
+    ChildProcessManager.reap_one(12345)
+    ChildProcessManager.reap_all
+    ChildProcessManager.managed_processes.should == {}
     done
   end
 
