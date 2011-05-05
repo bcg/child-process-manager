@@ -1,7 +1,7 @@
 
 Gem::Specification.new do |s|
   s.name = 'child-process-manager'
-  s.version = '0.0.1'
+  s.version = '0.0.2'
 
   s.authors = ['bcg']
   s.email = 'brenden.grace@gmail.com'
