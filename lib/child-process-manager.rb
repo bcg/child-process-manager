@@ -1,4 +1,4 @@
-
+require 'socket'
 
 class ChildProcess 
 
@@ -70,10 +70,14 @@ class ChildProcessManager
   def self.reap_all
     self.init
 
-    @@managed_processes.each_value do |child_process|
-      child_process.stop
-      child_process = nil
+    @@managed_processes.each do |address,child_process|
+      child_process.stop if child_process
+      @@managed_processes.delete(address)
     end
+  end
+
+  def self.managed_processes
+    @@managed_processes
   end
 
   def self.reap_one(*args)
@@ -86,9 +90,10 @@ class ChildProcessManager
       ip = args[0]
       port = args[1]
     end
-    if @@managed_processes["#{ip}:#{port}"]
-      @@managed_processes["#{ip}:#{port}"].stop
-      @@managed_processes["#{ip}:#{port}"] = nil
+    address = "#{ip}:#{port}"
+    if @@managed_processes[address]
+      @@managed_processes[address].stop
+      @@managed_processes.delete(address)
     end
   end
 end
